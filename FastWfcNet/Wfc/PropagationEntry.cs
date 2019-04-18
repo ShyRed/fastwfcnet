@@ -25,23 +25,36 @@
 namespace FastWfcNet.Wfc
 {
     /// <summary>
-    /// Result of an observation.
+    /// A position and pattern that should be propagated.
     /// </summary>
-    public enum ObserveStatus
+    public struct PropagationEntry
     {
         /// <summary>
-        /// WFC has finished and has succeeded.
+        /// X-coordinate.
         /// </summary>
-        Sucess,
+        public uint X;
 
         /// <summary>
-        /// WFC has finished and failed.
+        /// Y-coordinate.
         /// </summary>
-        Failure,
+        public uint Y;
 
         /// <summary>
-        /// WFC isn't finished.
+        /// The pattern.
         /// </summary>
-        ToContinue
+        public uint Pattern;
+
+        /// <summary>
+        /// Creates a new <see cref="PropagationEntry"/> with the specified values.
+        /// </summary>
+        /// <param name="x">The x-coordinate.</param>
+        /// <param name="y">The y-coordinate.</param>
+        /// <param name="pattern">The pattern.</param>
+        public PropagationEntry(uint x, uint y, uint pattern)
+        {
+            X = x;
+            Y = y;
+            Pattern = pattern;
+        }
     }
 }

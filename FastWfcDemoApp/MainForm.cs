@@ -1,22 +1,36 @@
 ﻿using FastWfcNet;
 using FastWfcNet.Utils;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FastWfcDemoApp
 {
+    /// <summary>
+    /// Demo application main form.
+    /// </summary>
     public partial class MainForm : Form
     {
+        /// <summary>
+        /// Specifies if WFC is running.
+        /// </summary>
         private bool _IsRunning = false;
 
+        /// <summary>
+        /// Creates a new <see cref="MainForm"/>.
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
         }
 
-
+        /// <summary>
+        /// Presents an "open file" dialog to the user for choosing the input image file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void pixelartBoxInput_Click(object sender, EventArgs e)
         {
             if (_IsRunning || openFileDialogInput.ShowDialog() != DialogResult.OK)
@@ -35,18 +49,23 @@ namespace FastWfcDemoApp
             numericUpDownHeight.Value = Math.Max(image.Height, numericUpDownHeight.Minimum);
         }
 
+        /// <summary>
+        /// Starts the WFC algorithm.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void buttonStart_Click(object sender, EventArgs e)
         {
             var inputBitmap = pixelartBoxInput.Image as Bitmap;
             var options = new OverlappingWfcOptions()
             {
                 Ground = checkBoxGround.Checked,
-                OutputHeight = (UInt32)numericUpDownHeight.Value,
-                OutputWidth = (UInt32)numericUpDownWidth.Value,
-                PatternSize = (UInt32)numericUpDownPatternSize.Value,
+                OutputHeight = (uint)numericUpDownHeight.Value,
+                OutputWidth = (uint)numericUpDownWidth.Value,
+                PatternSize = (uint)numericUpDownPatternSize.Value,
                 PeriodicInput = checkBoxPeriodicInput.Checked,
                 PeriodicOutput = checkBoxPeriodicOutput.Checked,
-                Symmetry = (UInt32)numericUpDownSymmetry.Value
+                Symmetry = (uint)numericUpDownSymmetry.Value
             };
 
             var seed = (int)numericUpDownSeed.Value;
@@ -55,22 +74,32 @@ namespace FastWfcDemoApp
             buttonStart.Enabled = false;
             groupBoxSettings.Enabled = false;
 
-            var outputBitmap = await Task.Run<Bitmap>(() => {
-                var inputColors = new Array2D<Color>((UInt32)inputBitmap.Height, (UInt32)inputBitmap.Width);
-                for (UInt32 x = 0; x < inputColors.Width; x++)
-                    for (UInt32 y = 0; y < inputColors.Height; y++)
-                        inputColors[y, x] = inputBitmap.GetPixel((int)x,(int)y);
+            Bitmap outputBitmap = null;
+            var stopwatch = new Stopwatch();
+            var retries = 0;
+            try
+            {
+                stopwatch.Start();
 
-                var wfc = new OverlappingWfc<Color>(inputColors, options, seed);
-                var result = wfc.Run();
-                if (result == null)
-                    return null;
-                var resultBitmap = new Bitmap((int)result.Width, (int)result.Height);
-                for (UInt32 x = 0; x < result.Width; x++)
-                    for (UInt32 y = 0; y < result.Height; y++)
-                        resultBitmap.SetPixel((int)x, (int)y, result[y, x]);
-                return resultBitmap;
-            });
+                while(retries < numericUpDownRetries.Value && outputBitmap == null)
+                {
+                    toolStripStatusLabelStatus.ForeColor = ForeColor;
+                    toolStripStatusLabelStatus.Text = $"Attempt #{retries + 1} ...";
+
+                    outputBitmap = await RunWfcAsync(inputBitmap, options, seed);
+
+                    if (outputBitmap == null)
+                        seed = MakeRandomSeed();
+                    retries++;
+                }
+
+                stopwatch.Stop();
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                MessageBox.Show(ex.ToString(), "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             if (outputBitmap != null)
             {
@@ -79,6 +108,14 @@ namespace FastWfcDemoApp
 
                 if (oldImage != null)
                     oldImage.Dispose();
+
+                toolStripStatusLabelStatus.ForeColor = Color.DarkGreen;
+                toolStripStatusLabelStatus.Text = $"Succeeded in {stopwatch.ElapsedMilliseconds}ms after {retries} attempt(s)";
+            }
+            else
+            {
+                toolStripStatusLabelStatus.ForeColor = Color.DarkRed;
+                toolStripStatusLabelStatus.Text = $"Failed in {stopwatch.ElapsedMilliseconds}ms after {retries} attempt(s)";
             }
 
             groupBoxSettings.Enabled = true;
@@ -86,12 +123,76 @@ namespace FastWfcDemoApp
             _IsRunning = false;
         }
 
+        /// <summary>
+        /// Assigns a random value to the seed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonRandom_Click(object sender, EventArgs e)
+        {
+            MakeRandomSeed();
+        }
+
+        /// <summary>
+        /// Presents the user with a "save file" dialog for saving the output image.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void pixelartBoxOutput_Click(object sender, EventArgs e)
         {
             if (pixelartBoxOutput.Image == null || saveFileDialogOutput.ShowDialog() != DialogResult.OK)
                 return;
 
             pixelartBoxOutput.Image.Save(saveFileDialogOutput.FileName);
+        }
+
+        /// <summary>
+        /// Opens the "fastwfcnet" repository in a web browser.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripStatusLabelVisitGithub_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/ShyRed/fastwfcnet");
+        }
+
+        /// <summary>
+        /// Creates a new random seed.
+        /// </summary>
+        /// <returns>The new seed.</returns>
+        private int MakeRandomSeed()
+        {
+            var seed = (int)(new Random().NextDouble() * (double)numericUpDownSeed.Maximum);
+            numericUpDownSeed.Value = seed;
+            return seed;
+        }
+
+        /// <summary>
+        /// Runs WFC with overlapping model in a thread.
+        /// </summary>
+        /// <param name="inputBitmap">The input image.</param>
+        /// <param name="options">The overlapping model options.</param>
+        /// <param name="seed">The seed for the random number generator.</param>
+        /// <returns>The resulting image or <c>null</c>.</returns>
+        private static Task<Bitmap> RunWfcAsync(Bitmap inputBitmap, OverlappingWfcOptions options, int seed)
+        {
+            return Task.Run<Bitmap>(() =>
+            {
+                var inputColors = new Array2D<int>((uint)inputBitmap.Height, (uint)inputBitmap.Width);
+                for (uint x = 0; x < inputColors.Width; x++)
+                    for (uint y = 0; y < inputColors.Height; y++)
+                        inputColors[y, x] = inputBitmap.GetPixel((int)x, (int)y).ToArgb();
+
+                var wfc = new OverlappingWfc<int>(inputColors, options, seed);
+                var result = wfc.Run();
+                if (result == null)
+                    return null;
+                var resultBitmap = new Bitmap((int)result.Width, (int)result.Height);
+                for (uint x = 0; x < result.Width; x++)
+                    for (uint y = 0; y < result.Height; y++)
+                        resultBitmap.SetPixel((int)x, (int)y, Color.FromArgb(result[y, x]));
+                return resultBitmap;
+            });
         }
     }
 }

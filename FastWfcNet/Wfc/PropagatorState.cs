@@ -22,26 +22,51 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE. 
 */
+using System.Collections.Generic;
+
 namespace FastWfcNet.Wfc
 {
     /// <summary>
-    /// Result of an observation.
+    /// Propagator state. Holds for each pattern in each direction the possible/allowed states.
     /// </summary>
-    public enum ObserveStatus
+    public sealed class PropagatorState
     {
         /// <summary>
-        /// WFC has finished and has succeeded.
+        /// Returns the list of possibile patterns for the specified <c>pattern</c>
+        /// in the given <c>direction</c>.
         /// </summary>
-        Sucess,
+        /// <param name="pattern">The pattern.</param>
+        /// <param name="direction">The direction.</param>
+        /// <returns>The list of possible patterns for the given pattern and direction.</returns>
+        public List<uint> this[uint pattern, uint direction]
+        {
+            get
+            {
+                return _State[pattern * Direction.DirectionCount + direction];
+            }
+        }
 
         /// <summary>
-        /// WFC has finished and failed.
+        /// The number of patterns.
         /// </summary>
-        Failure,
+        public readonly uint PatternCount;
 
         /// <summary>
-        /// WFC isn't finished.
+        /// State
         /// </summary>
-        ToContinue
+        private List<uint>[] _State;
+
+        /// <summary>
+        /// Creates a new <see cref="PropagatorState"/> that can hold the specified
+        /// amount of patterns.
+        /// </summary>
+        /// <param name="patternCount">The number of patterns.</param>
+        public PropagatorState(uint patternCount)
+        {
+            PatternCount = patternCount;
+            _State = new List<uint>[patternCount * Direction.DirectionCount];
+            for (int i = 0; i < patternCount * Direction.DirectionCount; i++)
+                _State[i] = new List<uint>();
+        }
     }
 }

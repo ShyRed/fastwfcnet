@@ -1,4 +1,28 @@
-﻿using System;
+﻿/*
+    MIT License
+
+    Copyright (c) 2019 Pascal Richter
+    Copyright (c) 2018 Mathieu Fehr and Nathanaël Courant
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE. 
+*/
+using System;
 
 namespace FastWfcNet.Utils
 {
@@ -6,18 +30,18 @@ namespace FastWfcNet.Utils
     /// Represent a 2D array.
     /// <para>The 2D array is stored in a single array to improve cache usage.</para>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type a single element in this array.</typeparam>
     public sealed class Array2D<T> : IEquatable<Array2D<T>>
     {
         /// <summary>
         /// The height of the 2D array.
         /// </summary>
-        public UInt32 Height;
+        public uint Height;
 
         /// <summary>
         /// The width of the 2D array.
         /// </summary>
-        public UInt32 Width;
+        public uint Width;
 
         /// <summary>
         /// The array containing the data of the 2D array.
@@ -30,7 +54,7 @@ namespace FastWfcNet.Utils
         /// <param name="i">Must be lower than height.</param>
         /// <param name="j">Must be lower than width.</param>
         /// <returns>The value at the specified position in the 2D array.</returns>
-        public T this[UInt32 i, UInt32 j]
+        public T this[uint i, uint j]
         {
             get
             {
@@ -47,7 +71,7 @@ namespace FastWfcNet.Utils
         /// </summary>
         /// <param name="height">The 2D array height.</param>
         /// <param name="width">The 2D array width.</param>
-        public Array2D(UInt32 height, UInt32 width)
+        public Array2D(uint height, uint width)
         {
             Height = height;
             Width = width;
@@ -61,10 +85,10 @@ namespace FastWfcNet.Utils
         /// <param name="height">The 2D array height.</param>
         /// <param name="width">The 2D array width.</param>
         /// <param name="value">The initial value.</param>
-        public Array2D(UInt32 height, UInt32 width, T value)
+        public Array2D(uint height, uint width, T value)
             : this(height, width)
         {
-            for (UInt32 i = 0; i < width * height; i++)
+            for (uint i = 0; i < width * height; i++)
                 Data[i] = value;
         }
 
@@ -75,9 +99,9 @@ namespace FastWfcNet.Utils
         public Array2D<T> Reflected()
         {
             var result = new Array2D<T>(Height, Width);
-            for (UInt32 y = 0; y < Height; y++)
+            for (uint y = 0; y < Height; y++)
             {
-                for (UInt32 x = 0; x < Width; x++)
+                for (uint x = 0; x < Width; x++)
                 {
                     result[y, x] = this[y, Width - 1 - x];
                 }
@@ -92,9 +116,9 @@ namespace FastWfcNet.Utils
         public Array2D<T> Rotated()
         {
             var result = new Array2D<T>(Width, Height);
-            for (UInt32 y = 0; y < Width; y++)
+            for (uint y = 0; y < Width; y++)
             {
-                for (UInt32 x = 0; x < Height; x++)
+                for (uint x = 0; x < Height; x++)
                 {
                     result[y, x] = this[x, Width - 1 - y];
                 }
@@ -111,12 +135,12 @@ namespace FastWfcNet.Utils
         /// <param name="sub_width"></param>
         /// <param name="sub_height"></param>
         /// <returns></returns>
-        public Array2D<T> GetSubArray(UInt32 y, UInt32 x, UInt32 sub_width, UInt32 sub_height)
+        public Array2D<T> GetSubArray(uint y, uint x, uint sub_width, uint sub_height)
         {
             var subArray = new Array2D<T>(sub_height, sub_width);
-            for (UInt32 ki = 0; ki < sub_height; ki++)
+            for (uint ki = 0; ki < sub_height; ki++)
             {
-                for (UInt32 kj = 0; kj < sub_width; kj++)
+                for (uint kj = 0; kj < sub_width; kj++)
                 {
                     subArray[ki, kj] = this[(y + ki) % Height, (x + kj) % Width];
                 }
@@ -151,18 +175,27 @@ namespace FastWfcNet.Utils
             if (object.ReferenceEquals(other, null) || Width != other.Width || Height != other.Height)
                 return false;
 
-            for (UInt32 i = 0; i < Data.Length; i++)
+            for (uint i = 0; i < Data.Length; i++)
                 if (!Data[i].Equals(other.Data[i]))
                     return false;
 
             return true;
         }
 
+        /// <summary>
+        /// Checks if the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns><c>true</c>, if both objects are equal.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Array2D<T>);
         }
 
+        /// <summary>
+        /// Calculates and returns the hashcode.
+        /// </summary>
+        /// <returns>The hashcode.</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -173,8 +206,8 @@ namespace FastWfcNet.Utils
                 int hash = HashingBase;
                 hash = (hash * HashingMultiplier) ^ Width.GetHashCode();
                 hash = (hash * HashingMultiplier) ^ Height.GetHashCode();
-                foreach (var data in Data)
-                    hash = (hash * HashingMultiplier) ^ data.GetHashCode();
+                for (int i = 0; i < Data.Length; i++)
+                    hash = (hash * HashingMultiplier) ^ Data[i].GetHashCode();
                 return hash;
             }
         }

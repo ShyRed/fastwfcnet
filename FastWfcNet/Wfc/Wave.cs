@@ -1,4 +1,28 @@
-﻿using FastWfcNet.Utils;
+﻿/*
+    MIT License
+
+    Copyright (c) 2019 Pascal Richter
+    Copyright (c) 2018 Mathieu Fehr and Nathanaël Courant
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE. 
+*/
+using FastWfcNet.Utils;
 using System;
 
 namespace FastWfcNet.Wfc
@@ -9,9 +33,20 @@ namespace FastWfcNet.Wfc
     /// </summary>
     public sealed class Wave
     {
-        public readonly UInt32 Width;
-        public readonly UInt32 Height;
-        public readonly UInt32 Size;
+        /// <summary>
+        /// The wave's width.
+        /// </summary>
+        public readonly uint Width;
+
+        /// <summary>
+        /// The wave's height.
+        /// </summary>
+        public readonly uint Height;
+
+        /// <summary>
+        /// The wave's area (result of width * height).
+        /// </summary>
+        public readonly uint Size;
 
         /// <summary>
         /// Return <c>true</c> if the pattern can be placed in cell index.
@@ -19,7 +54,7 @@ namespace FastWfcNet.Wfc
         /// <param name="index">Cell index.</param>
         /// <param name="pattern">Pattern.</param>
         /// <returns><c>true</c> if the pattern can be placed in cell index.</returns>
-        public bool this[UInt32 index, UInt32 pattern]
+        public bool this[uint index, uint pattern]
         {
             get
             {
@@ -30,6 +65,7 @@ namespace FastWfcNet.Wfc
                 var oldValue = _Data[index, pattern];
                 if (oldValue == value)
                     return;
+
                 _Data[index, pattern] = value;
                 _Memoisation.PlogPSum[index] -= _PlogPPatternsFrequencies[pattern];
                 _Memoisation.Sum[index] -= _PatternsFrequencies[pattern];
@@ -50,7 +86,7 @@ namespace FastWfcNet.Wfc
         /// <param name="j">J coordinate.</param>
         /// <param name="pattern">The pattern.</param>
         /// <returns><c>true</c> if pattern can be placed in cell (i, j).</returns>
-        public bool this[UInt32 i, UInt32 j, UInt32 pattern]
+        public bool this[uint i, uint j, uint pattern]
         {
             get
             {
@@ -92,7 +128,7 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// The number of distinct patterns.
         /// </summary>
-        private UInt32 _NbPatterns;
+        private uint _NbPatterns;
 
         /// <summary>
         /// The actual wave. <c>_Data[index, pattern]</c> is equal to 0 if the pattern can
@@ -106,13 +142,13 @@ namespace FastWfcNet.Wfc
         /// <param name="height">The height.</param>
         /// <param name="width">The width.</param>
         /// <param name="patternsFrequencies">The patterns frequencies p given to wfc.</param>
-        public Wave(UInt32 height, UInt32 width, double[] patternsFrequencies)
+        public Wave(uint height, uint width, double[] patternsFrequencies)
         {
             _PatternsFrequencies = patternsFrequencies;
             _PlogPPatternsFrequencies = GetPlogP(patternsFrequencies);
             _MinAbsHalfPlogP = GetMinAbsHalf(_PlogPPatternsFrequencies);
             _IsImpossible = false;
-            _NbPatterns = (UInt32)patternsFrequencies.Length;
+            _NbPatterns = (uint)patternsFrequencies.Length;
             _Data = new Array2D<bool>(width * height, _NbPatterns, true);
             Width = width;
             Height = height;
@@ -129,12 +165,14 @@ namespace FastWfcNet.Wfc
             var logBaseS = Math.Log(baseS);
             var entropyBase = logBaseS - baseEntropy / baseS;
 
-            _Memoisation = new EntropyMemoisation();
-            _Memoisation.PlogPSum = new double[width * height];
-            _Memoisation.Sum = new double[width * height];
-            _Memoisation.LogSum = new double[width * height];
-            _Memoisation.NbPatterns = new UInt32[width * height];
-            _Memoisation.Entropy = new double[width * height];
+            _Memoisation = new EntropyMemoisation
+            {
+                PlogPSum = new double[width * height],
+                Sum = new double[width * height],
+                LogSum = new double[width * height],
+                NbPatterns = new uint[width * height],
+                Entropy = new double[width * height]
+            };
 
             for (int i = 0; i < width * height; i++)
             {
@@ -192,7 +230,6 @@ namespace FastWfcNet.Wfc
 
             return argmin;
         }
-
 
         /// <summary>
         /// Calculates and returns <c>distribution * log(distribution)</c>.
