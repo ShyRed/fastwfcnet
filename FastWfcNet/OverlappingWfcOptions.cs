@@ -32,12 +32,12 @@ namespace FastWfcNet
         /// <summary>
         /// Set to <c>true</c> if the input is toric.
         /// </summary>
-        public bool PeriodicInput;
+        public bool IsPeriodicInput;
 
         /// <summary>
         /// Set to <c>true</c> if the output is toric.
         /// </summary>
-        public bool PeriodicOutput;
+        public bool IsPeriodicOutput;
 
         /// <summary>
         /// The height of the output in pixels.
@@ -57,7 +57,7 @@ namespace FastWfcNet
         /// <summary>
         /// Set to <c>true</c> if the ground needs to be set.
         /// </summary>
-        public bool Ground;
+        public bool HasGround;
 
         /// <summary>
         /// The width and height in pixel of the patterns.
@@ -70,7 +70,7 @@ namespace FastWfcNet
         /// <returns>The wave height.</returns>
         public uint GetWaveHeight()
         {
-            return PeriodicOutput ? OutputHeight : OutputHeight - PatternSize + 1;
+            return IsPeriodicOutput ? OutputHeight : OutputHeight - PatternSize + 1;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace FastWfcNet
         /// <returns>The wave width.</returns>
         public uint GetWaveWidth()
         {
-            return PeriodicOutput ? OutputWidth : OutputWidth - PatternSize + 1;
+            return IsPeriodicOutput ? OutputWidth : OutputWidth - PatternSize + 1;
         }
     }
 }

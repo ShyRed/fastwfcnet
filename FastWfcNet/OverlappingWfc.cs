@@ -70,10 +70,10 @@ namespace FastWfcNet
             _Patterns = patternsAndProbabilities.Item1;
 
             var propagator = GenerateCompatible(_Patterns);
-            _Wfc = new GenericWfc(options.PeriodicOutput, seed, patternsAndProbabilities.Item2, propagator, options.GetWaveHeight(), options.GetWaveWidth());
+            _Wfc = new GenericWfc(options.IsPeriodicOutput, seed, patternsAndProbabilities.Item2, propagator, options.GetWaveHeight(), options.GetWaveWidth());
 
             // If necessary, the ground is set
-            if (options.Ground)
+            if (options.HasGround)
                 InitGround(_Wfc, input, _Patterns, options);
         }
 
@@ -89,54 +89,65 @@ namespace FastWfcNet
 
         /// <summary>
         /// Init the ground of the output image.
-        /// <para>The lowest middle pattern is used as a floor(and ceiling when the input is
-        /// toric) and is placed at the lowest possible pattern position in the output
+        /// <para>The lowest patterns are used as a floor(and ceiling when the input is
+        /// toric) and is placed at the lowest possible pattern positions in the output
         /// image, on all its width.The pattern cannot be used at any other place in
         /// the output image.</para>
         /// </summary>
-        /// <param name="wfc"></param>
-        /// <param name="input"></param>
-        /// <param name="patterns"></param>
-        /// <param name="options"></param>
+        /// <param name="wfc">The WFC algorithm.</param>
+        /// <param name="input">The input pixel data.</param>
+        /// <param name="patterns">All known patterns.</param>
+        /// <param name="options">WFC overlapping model options.</param>
         private static void InitGround(GenericWfc wfc, Array2D<T> input, Array2D<T>[] patterns, OverlappingWfcOptions options)
         {
-            var groundPatternId = GetGroundPattenId(input, patterns, options);
+            var groundPatternIds = GetGroundPatternIds(input, patterns, options);
 
-            // Place the pattern in the ground
-            for (uint j = 0; j < options.GetWaveWidth(); j++)
-                for (uint p = 0; p < patterns.Length; p++)
-                    if (groundPatternId != p)
+            // Place the patterns in the ground
+            for (uint p = 0; p < patterns.Length; p++)
+                if (!groundPatternIds.Contains(p))
+                    for (uint j = 0; j < options.GetWaveWidth(); j++)
                         wfc.RemoveWavePattern(options.GetWaveHeight() - 1, j, p);
 
-            // Remove the pattern from the other positions
+            // Remove the patterns from the other positions
             for (uint i = 0; i < options.GetWaveHeight() - 1; i++)
                 for (uint j = 0; j < options.GetWaveWidth(); j++)
-                    wfc.RemoveWavePattern(i, j, groundPatternId);
+                    for (int p = 0; p < groundPatternIds.Count; p++)
+                        wfc.RemoveWavePattern(i, j, groundPatternIds[p]);
 
             // Propagate the information with wfc
             wfc.Propagate();
         }
 
         /// <summary>
-        /// Return the id of the lowest middle pattern.
+        /// Return the ids of the lowest patterns.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="patterns"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        private static uint GetGroundPattenId(Array2D<T> input, Array2D<T>[] patterns, OverlappingWfcOptions options)
+        private static List<uint> GetGroundPatternIds(Array2D<T> input, Array2D<T>[] patterns, OverlappingWfcOptions options)
         {
-            // Get the pattern
-            var groundPattern = input.GetSubArray(input.Height - 1, input.Width / 2, options.PatternSize, options.PatternSize);
+            var groundPatterns = new List<uint>();
 
-            // Retrieve the id of the pattern
-            for (uint i = 0; i < patterns.Length; i++)
-                if (groundPattern == patterns[i])
-                    return i;
+            for (uint x = 0; x < input.Width; x++)
+            {
+                // Get the pattern
+                var groundPattern = input.GetSubArray(input.Height - 1, x, options.PatternSize, options.PatternSize);
 
-            // The pattern exists
-            // assert(false) 
-            return 0;
+                // Retrieve the id of the pattern
+                for (uint i = 0; i < patterns.Length; i++)
+                {
+                    if (groundPattern == patterns[i])
+                    {
+                        if (!groundPatterns.Contains(i))
+                            groundPatterns.Add(i);
+                        else
+                            break;
+                    }
+                }
+            }
+
+            return groundPatterns;
         }
 
         /// <summary>
@@ -154,8 +165,8 @@ namespace FastWfcNet
             var patternsWeight = new List<double>();
 
             var symmetries = new Array2D<T>[8];
-            uint maxI = options.PeriodicInput ? input.Height : input.Height - options.PatternSize + 1;
-            uint maxJ = options.PeriodicInput ? input.Width : input.Width - options.PatternSize + 1;
+            uint maxI = options.IsPeriodicInput ? input.Height : input.Height - options.PatternSize + 1;
+            uint maxJ = options.IsPeriodicInput ? input.Width : input.Width - options.PatternSize + 1;
 
             for (uint i = 0; i < maxI; i++)
             {
@@ -256,7 +267,7 @@ namespace FastWfcNet
         {
             var output = new Array2D<T>(_Options.OutputHeight, _Options.OutputWidth);
 
-            if (_Options.PeriodicOutput)
+            if (_Options.IsPeriodicOutput)
             {
                 for (uint y = 0; y < _Options.GetWaveHeight(); y++)
                     for (uint x = 0; x < _Options.GetWaveWidth(); x++)

@@ -29,10 +29,15 @@
         private void InitializeComponent()
         {
             this.groupBoxInput = new System.Windows.Forms.GroupBox();
+            this.pixelartBoxInput = new FastWfcDemoApp.PixelartBox();
             this.groupBoxOutput = new System.Windows.Forms.GroupBox();
+            this.pixelartBoxOutput = new FastWfcDemoApp.PixelartBox();
             this.openFileDialogInput = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialogOutput = new System.Windows.Forms.SaveFileDialog();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.labelRetries = new System.Windows.Forms.Label();
+            this.numericUpDownRetries = new System.Windows.Forms.NumericUpDown();
+            this.buttonRandom = new System.Windows.Forms.Button();
             this.numericUpDownSeed = new System.Windows.Forms.NumericUpDown();
             this.labelRngSeed = new System.Windows.Forms.Label();
             this.labelPatternSize = new System.Windows.Forms.Label();
@@ -52,14 +57,10 @@
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelVisitGithub = new System.Windows.Forms.ToolStripStatusLabel();
-            this.buttonRandom = new System.Windows.Forms.Button();
-            this.numericUpDownRetries = new System.Windows.Forms.NumericUpDown();
-            this.labelRetries = new System.Windows.Forms.Label();
-            this.pixelartBoxInput = new FastWfcDemoApp.PixelartBox();
-            this.pixelartBoxOutput = new FastWfcDemoApp.PixelartBox();
             this.groupBoxInput.SuspendLayout();
             this.groupBoxOutput.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRetries)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPatternSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSymmetry)).BeginInit();
@@ -71,7 +72,6 @@
             this.splitContainerInputOutput.Panel2.SuspendLayout();
             this.splitContainerInputOutput.SuspendLayout();
             this.statusStripMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRetries)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBoxInput
@@ -85,6 +85,17 @@
             this.groupBoxInput.TabStop = false;
             this.groupBoxInput.Text = "Input";
             // 
+            // pixelartBoxInput
+            // 
+            this.pixelartBoxInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pixelartBoxInput.Image = null;
+            this.pixelartBoxInput.Location = new System.Drawing.Point(3, 16);
+            this.pixelartBoxInput.Name = "pixelartBoxInput";
+            this.pixelartBoxInput.Size = new System.Drawing.Size(349, 322);
+            this.pixelartBoxInput.TabIndex = 0;
+            this.pixelartBoxInput.Text = "Click here to select input image!";
+            this.pixelartBoxInput.Click += new System.EventHandler(this.pixelartBoxInput_Click);
+            // 
             // groupBoxOutput
             // 
             this.groupBoxOutput.Controls.Add(this.pixelartBoxOutput);
@@ -95,6 +106,17 @@
             this.groupBoxOutput.TabIndex = 2;
             this.groupBoxOutput.TabStop = false;
             this.groupBoxOutput.Text = "Output";
+            // 
+            // pixelartBoxOutput
+            // 
+            this.pixelartBoxOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pixelartBoxOutput.Image = null;
+            this.pixelartBoxOutput.Location = new System.Drawing.Point(3, 16);
+            this.pixelartBoxOutput.Name = "pixelartBoxOutput";
+            this.pixelartBoxOutput.Size = new System.Drawing.Size(354, 322);
+            this.pixelartBoxOutput.TabIndex = 0;
+            this.pixelartBoxOutput.Text = "Click here to save output image once it is generated!";
+            this.pixelartBoxOutput.Click += new System.EventHandler(this.pixelartBoxOutput_Click);
             // 
             // openFileDialogInput
             // 
@@ -134,6 +156,42 @@
             this.groupBoxSettings.TabIndex = 3;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
+            // 
+            // labelRetries
+            // 
+            this.labelRetries.AutoSize = true;
+            this.labelRetries.Location = new System.Drawing.Point(402, 46);
+            this.labelRetries.Name = "labelRetries";
+            this.labelRetries.Size = new System.Drawing.Size(40, 13);
+            this.labelRetries.TabIndex = 15;
+            this.labelRetries.Text = "Retries";
+            // 
+            // numericUpDownRetries
+            // 
+            this.numericUpDownRetries.Location = new System.Drawing.Point(467, 44);
+            this.numericUpDownRetries.Maximum = new decimal(new int[] {
+            40,
+            0,
+            0,
+            0});
+            this.numericUpDownRetries.Name = "numericUpDownRetries";
+            this.numericUpDownRetries.Size = new System.Drawing.Size(71, 20);
+            this.numericUpDownRetries.TabIndex = 14;
+            this.numericUpDownRetries.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // buttonRandom
+            // 
+            this.buttonRandom.Location = new System.Drawing.Point(612, 15);
+            this.buttonRandom.Name = "buttonRandom";
+            this.buttonRandom.Size = new System.Drawing.Size(56, 23);
+            this.buttonRandom.TabIndex = 13;
+            this.buttonRandom.Text = "Random";
+            this.buttonRandom.UseVisualStyleBackColor = true;
+            this.buttonRandom.Click += new System.EventHandler(this.buttonRandom_Click);
             // 
             // numericUpDownSeed
             // 
@@ -377,64 +435,11 @@
             this.toolStripStatusLabelVisitGithub.IsLink = true;
             this.toolStripStatusLabelVisitGithub.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.toolStripStatusLabelVisitGithub.Name = "toolStripStatusLabelVisitGithub";
-            this.toolStripStatusLabelVisitGithub.Size = new System.Drawing.Size(610, 17);
+            this.toolStripStatusLabelVisitGithub.Size = new System.Drawing.Size(641, 17);
             this.toolStripStatusLabelVisitGithub.Spring = true;
             this.toolStripStatusLabelVisitGithub.Text = "Visit this project on GitHub";
             this.toolStripStatusLabelVisitGithub.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.toolStripStatusLabelVisitGithub.Click += new System.EventHandler(this.toolStripStatusLabelVisitGithub_Click);
-            // 
-            // buttonRandom
-            // 
-            this.buttonRandom.Location = new System.Drawing.Point(612, 15);
-            this.buttonRandom.Name = "buttonRandom";
-            this.buttonRandom.Size = new System.Drawing.Size(56, 23);
-            this.buttonRandom.TabIndex = 13;
-            this.buttonRandom.Text = "Random";
-            this.buttonRandom.UseVisualStyleBackColor = true;
-            this.buttonRandom.Click += new System.EventHandler(this.buttonRandom_Click);
-            // 
-            // numericUpDownRetries
-            // 
-            this.numericUpDownRetries.Location = new System.Drawing.Point(467, 44);
-            this.numericUpDownRetries.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.numericUpDownRetries.Name = "numericUpDownRetries";
-            this.numericUpDownRetries.Size = new System.Drawing.Size(71, 20);
-            this.numericUpDownRetries.TabIndex = 14;
-            // 
-            // labelRetries
-            // 
-            this.labelRetries.AutoSize = true;
-            this.labelRetries.Location = new System.Drawing.Point(402, 46);
-            this.labelRetries.Name = "labelRetries";
-            this.labelRetries.Size = new System.Drawing.Size(40, 13);
-            this.labelRetries.TabIndex = 15;
-            this.labelRetries.Text = "Retries";
-            // 
-            // pixelartBoxInput
-            // 
-            this.pixelartBoxInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pixelartBoxInput.Image = null;
-            this.pixelartBoxInput.Location = new System.Drawing.Point(3, 16);
-            this.pixelartBoxInput.Name = "pixelartBoxInput";
-            this.pixelartBoxInput.Size = new System.Drawing.Size(349, 322);
-            this.pixelartBoxInput.TabIndex = 0;
-            this.pixelartBoxInput.Text = "Click here to select input image!";
-            this.pixelartBoxInput.Click += new System.EventHandler(this.pixelartBoxInput_Click);
-            // 
-            // pixelartBoxOutput
-            // 
-            this.pixelartBoxOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pixelartBoxOutput.Image = null;
-            this.pixelartBoxOutput.Location = new System.Drawing.Point(3, 16);
-            this.pixelartBoxOutput.Name = "pixelartBoxOutput";
-            this.pixelartBoxOutput.Size = new System.Drawing.Size(354, 322);
-            this.pixelartBoxOutput.TabIndex = 0;
-            this.pixelartBoxOutput.Text = "Click here to save output image once it is generated!";
-            this.pixelartBoxOutput.Click += new System.EventHandler(this.pixelartBoxOutput_Click);
             // 
             // MainForm
             // 
@@ -451,6 +456,7 @@
             this.groupBoxOutput.ResumeLayout(false);
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRetries)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPatternSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSymmetry)).EndInit();
@@ -463,7 +469,6 @@
             this.splitContainerInputOutput.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
             this.statusStripMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRetries)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
