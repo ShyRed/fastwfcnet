@@ -1,4 +1,4 @@
-﻿namespace FastWfcDemoApp
+﻿namespace FastWfcDemoApp.Controls
 {
     partial class PixelartBox
     {

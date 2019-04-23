@@ -41,7 +41,7 @@ namespace FastWfcNet.Wfc
         /// propagator[pattern][direction] contains all the patterns that can
         /// be placed in next to pattern in the direction <c>direction</c>.
         /// </summary>
-        private PropagatorState _PropagatorState;
+        private PropagatorState<uint> _PropagatorState;
 
         /// <summary>
         /// The width of the wave.
@@ -81,7 +81,7 @@ namespace FastWfcNet.Wfc
         /// <param name="waveWidth">The wave's width.</param>
         /// <param name="periodicOutput"><c>true</c> if the wave and the output is toric.</param>
         /// <param name="propagatorState">The propagator state.</param>
-        public Propagator(uint waveHeight, uint waveWidth, bool periodicOutput, PropagatorState propagatorState)
+        public Propagator(uint waveHeight, uint waveWidth, bool periodicOutput, PropagatorState<uint> propagatorState)
         {
             _PatternsSize = propagatorState.PatternCount;
             _WaveHeight = waveHeight;

@@ -244,9 +244,9 @@ namespace FastWfcNet
         /// </summary>
         /// <param name="patterns">The patterns.</param>
         /// <returns>Compatible.</returns>
-        private static PropagatorState GenerateCompatible(Array2D<T>[] patterns)
+        private static PropagatorState<uint> GenerateCompatible(Array2D<T>[] patterns)
         {
-            var compatible = new PropagatorState((uint)patterns.Length);
+            var compatible = new PropagatorState<uint>((uint)patterns.Length);
 
             for (uint pattern1 = 0; pattern1 < patterns.Length; pattern1++)
                 for (uint direction = 0; direction < Direction.DirectionCount; direction++)

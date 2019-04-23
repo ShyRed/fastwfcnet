@@ -67,7 +67,7 @@ namespace FastWfcNet.Wfc
         /// <param name="waveHeight">The wave's height.</param>
         /// <param name="waveWidth">The wave's width.</param>
         public GenericWfc(bool periodicOutput, int seed, double[] patternFrequencies,
-            PropagatorState propagatorState, uint waveHeight, uint waveWidth)
+            PropagatorState<uint> propagatorState, uint waveHeight, uint waveWidth)
         {
             _Gen = new Random(seed);
             _PatternsFrequencies = Normalize(patternFrequencies);

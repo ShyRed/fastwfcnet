@@ -29,7 +29,7 @@ namespace FastWfcNet.Wfc
     /// <summary>
     /// Propagator state. Holds for each pattern in each direction the possible/allowed states.
     /// </summary>
-    public sealed class PropagatorState
+    public sealed class PropagatorState<T>
     {
         /// <summary>
         /// Returns the list of possibile patterns for the specified <c>pattern</c>
@@ -38,7 +38,7 @@ namespace FastWfcNet.Wfc
         /// <param name="pattern">The pattern.</param>
         /// <param name="direction">The direction.</param>
         /// <returns>The list of possible patterns for the given pattern and direction.</returns>
-        public List<uint> this[uint pattern, uint direction]
+        public List<T> this[uint pattern, uint direction]
         {
             get
             {
@@ -54,7 +54,7 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// State
         /// </summary>
-        private List<uint>[] _State;
+        private List<T>[] _State;
 
         /// <summary>
         /// Creates a new <see cref="PropagatorState"/> that can hold the specified
@@ -64,9 +64,9 @@ namespace FastWfcNet.Wfc
         public PropagatorState(uint patternCount)
         {
             PatternCount = patternCount;
-            _State = new List<uint>[patternCount * Direction.DirectionCount];
+            _State = new List<T>[patternCount * Direction.DirectionCount];
             for (int i = 0; i < patternCount * Direction.DirectionCount; i++)
-                _State[i] = new List<uint>();
+                _State[i] = new List<T>();
         }
     }
 }

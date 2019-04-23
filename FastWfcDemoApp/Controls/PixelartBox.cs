@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FastWfcDemoApp
+namespace FastWfcDemoApp.Controls
 {
     /// <summary>
     /// Displays and zooms the assigned <see cref="Image"/> in a pixel perfect way.
