@@ -7,12 +7,12 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastWfcDemoApp
+namespace FastWfcDemoApp.Views
 {
     /// <summary>
     /// View for overlapping wfc model.
     /// </summary>
-    public partial class OverlappingWfcPanel : UserControl, IWfcPanel
+    public partial class OverlappingWfcView : UserControl, IWfcPanel
     {
         /// <summary>
         /// Specifies if WFC is running.
@@ -25,9 +25,9 @@ namespace FastWfcDemoApp
         public ILogger Logger;
 
         /// <summary>
-        /// Creates a new <see cref="OverlappingWfcPanel"/> instance.
+        /// Creates a new <see cref="OverlappingWfcView"/> instance.
         /// </summary>
-        public OverlappingWfcPanel()
+        public OverlappingWfcView()
         {
             InitializeComponent();
         }
@@ -168,14 +168,9 @@ namespace FastWfcDemoApp
         /// <returns>The resulting image or <c>null</c>.</returns>
         private static Task<Bitmap> RunWfcAsync(Bitmap inputBitmap, OverlappingWfcOptions options, int seed)
         {
-            return Task.Run<Bitmap>(() =>
+            return Task.Run(() =>
             {
-                // Fetch the pixels from the input image (convert Colors to ARGB for speed) and store them
-                // in an Array2D.
-                var inputColors = new Array2D<int>((uint)inputBitmap.Height, (uint)inputBitmap.Width);
-                for (uint x = 0; x < inputColors.Width; x++)
-                    for (uint y = 0; y < inputColors.Height; y++)
-                        inputColors[y, x] = inputBitmap.GetPixel((int)x, (int)y).ToArgb();
+                var inputColors = BitmapUtil.FetchColorsAsArgb(inputBitmap);
 
                 // Create WFC overlapping model instance with the created array, the options and the seed
                 // for the random number generator.
@@ -191,10 +186,7 @@ namespace FastWfcDemoApp
                     return null;
 
                 // Success: extract pixels/colors and put them into an image.
-                var resultBitmap = new Bitmap((int)result.Width, (int)result.Height);
-                for (uint x = 0; x < result.Width; x++)
-                    for (uint y = 0; y < result.Height; y++)
-                        resultBitmap.SetPixel((int)x, (int)y, Color.FromArgb(result[y, x]));
+                var resultBitmap = BitmapUtil.CreateFromArgbColors(result);
 
                 return resultBitmap;
             });

@@ -10,12 +10,12 @@ using FastWfcDemoApp.Model;
 using FastWfcNet;
 using FastWfcNet.Utils;
 
-namespace FastWfcDemoApp
+namespace FastWfcDemoApp.Views
 {
     /// <summary>
     /// View for overlapping wfc model.
     /// </summary>
-    public partial class TilingWfcPanel : UserControl, IWfcPanel
+    public partial class TilingWfcView : UserControl, IWfcPanel
     {
         /// <summary>
         /// Logging.
@@ -23,12 +23,12 @@ namespace FastWfcDemoApp
         public ILogger Logger;
 
         private List<Tile<int>> _Tiles = new List<Tile<int>>();
-        private List<Tuple<uint, uint, uint, uint>> _Neighbors = new List<Tuple<uint, uint, uint, uint>>();
+        private List<TilingNeighbor> _Neighbors = new List<TilingNeighbor>();
 
         /// <summary>
-        /// Creates a new <see cref="TilingWfcPanel"/> instance.
+        /// Creates a new <see cref="TilingWfcView"/> instance.
         /// </summary>
-        public TilingWfcPanel()
+        public TilingWfcView()
         {
             InitializeComponent();
         }
@@ -72,7 +72,7 @@ namespace FastWfcDemoApp
             {
                 var oldImage = pixelartBoxOutput.Image;
 
-                pixelartBoxOutput.Image = await DrawOutputImage(result); 
+                pixelartBoxOutput.Image = BitmapUtil.CreateFromArgbColors(result); 
 
                 if (oldImage != null)
                     oldImage.Dispose();
@@ -115,7 +115,7 @@ namespace FastWfcDemoApp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void buttonLoadTileset_Click(object sender, EventArgs e)
+        private void buttonLoadTileset_Click(object sender, EventArgs e)
         {
             if (openFileDialogTileset.ShowDialog() != DialogResult.OK)
                 return;
@@ -149,13 +149,13 @@ namespace FastWfcDemoApp
                     {
                         var data = new Array2D<int>[nbOfSyms];
                         for (uint i = 0; i < data.Length; i++)
-                            data[i] = await FetchImageData(Path.Combine(tilemapDirectory, filename + " " + i + ".png"));
+                            data[i] = FetchImageData(Path.Combine(tilemapDirectory, filename + " " + i + ".png"));
 
                         _Tiles.Add(new Tile<int>(data, symmetry, weight));
                     }
                     else
                     {
-                        var imageData = await FetchImageData(Path.Combine(tilemapDirectory, filename + ".png"));
+                        var imageData = FetchImageData(Path.Combine(tilemapDirectory, filename + ".png"));
                         _Tiles.Add(new Tile<int>(imageData, symmetry, weight));
                     }
 
@@ -178,7 +178,7 @@ namespace FastWfcDemoApp
                     if (sep2 > 0 && uint.TryParse(tile2.Substring(sep2 + 1), out orien2))
                         tile2 = tile2.Substring(0, sep2);
 
-                    _Neighbors.Add(new Tuple<uint, uint, uint, uint>(
+                    _Neighbors.Add(new TilingNeighbor(
                         filenameToId[tile1],
                         orien1,
                         filenameToId[tile2],
@@ -207,34 +207,8 @@ namespace FastWfcDemoApp
 
             return Task.Run(() =>
             {
-                var wfc = new TilingWfc<int>(_Tiles.ToArray(), _Neighbors, height, width, options, seed);
+                var wfc = new TilingWfc<int>(_Tiles.ToArray(), _Neighbors.ToArray(), height, width, options, seed);
                 return wfc.Run();
-            });
-        }
-
-        /// <summary>
-        /// Draws the output image.
-        /// </summary>
-        /// <param name="result">The tile data.</param>
-        /// <returns>The generated output image.</returns>
-        private Task<Bitmap> DrawOutputImage(Array2D<int> result)
-        {
-            return Task.Run(() =>
-            {
-                var outputImage = new Bitmap((int)result.Width, (int)result.Height);
-
-                using (var g = Graphics.FromImage(outputImage))
-                {
-                    for (uint y = 0; y < result.Height; y++)
-                    {
-                        for (uint x = 0; x < result.Width; x++)
-                        {
-                            outputImage.SetPixel((int)x, (int)y, Color.FromArgb(result[y, x]));
-                        }
-                    }
-                }
-
-                return outputImage;
             });
         }
 
@@ -243,19 +217,10 @@ namespace FastWfcDemoApp
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <returns>The image data.</returns>
-        private static Task<Array2D<int>> FetchImageData(string filename)
+        private static Array2D<int> FetchImageData(string filename)
         {
-            return Task.Run(() =>
-            {
-                using (var image = new Bitmap(filename))
-                {
-                    var result = new Array2D<int>((uint)image.Height, (uint)image.Width);
-                    for (uint x = 0; x < image.Width; x++)
-                        for (uint y = 0; y < image.Height; y++)
-                            result[y, x] = image.GetPixel((int)x, (int)y).ToArgb();
-                    return result;
-                }
-            });
+            using (var image = new Bitmap(filename))
+                return BitmapUtil.FetchColorsAsArgb(image);
         }
 
         /// <summary>

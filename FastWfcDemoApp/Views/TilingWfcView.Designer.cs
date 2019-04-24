@@ -1,6 +1,6 @@
-﻿namespace FastWfcDemoApp
+﻿namespace FastWfcDemoApp.Views
 {
-    partial class TilingWfcPanel
+    partial class TilingWfcView
     {
         /// <summary> 
         /// Required designer variable.
@@ -144,7 +144,7 @@
             // 
             this.numericUpDownHeight.Location = new System.Drawing.Point(168, 19);
             this.numericUpDownHeight.Maximum = new decimal(new int[] {
-            32,
+            64,
             0,
             0,
             0});
@@ -175,7 +175,7 @@
             // 
             this.numericUpDownWidth.Location = new System.Drawing.Point(73, 19);
             this.numericUpDownWidth.Maximum = new decimal(new int[] {
-            32,
+            64,
             0,
             0,
             0});
@@ -249,13 +249,13 @@
             this.saveFileDialogOutput.Filter = "PNG files|*.png";
             this.saveFileDialogOutput.Title = "Select output image";
             // 
-            // TilingWfcPanel
+            // TilingWfcView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupBoxOutput);
             this.Controls.Add(this.groupBoxSettings);
-            this.Name = "TilingWfcPanel";
+            this.Name = "TilingWfcView";
             this.Size = new System.Drawing.Size(686, 427);
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();

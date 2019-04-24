@@ -37,56 +37,58 @@ namespace FastWfcNet
         /// <summary>
         /// The distinct tiles.
         /// </summary>
-        private Tile<T>[] Tiles;
+        private readonly Tile<T>[] _Tiles;
 
         /// <summary>
         /// Map Ids of oriented tiles to tile and orientation.
         /// </summary>
-        private List<Tuple<uint, uint>> IdToOrientedTile;
+        private readonly List<Tuple<uint, uint>> _IdToOrientedTile;
 
         /// <summary>
         /// Map tile and orientation to oriented tile id.
         /// </summary>
-        private List<List<uint>> OrientedTileIds;
+        private readonly uint[][] _OrientedTileIds;
 
         /// <summary>
         /// Options needed to use the tiling WFC.
         /// </summary>
-        private TilingWfcOptions Options;
+        private readonly TilingWfcOptions _Options;
 
         /// <summary>
         /// The underlying generic WFC algorithm.
         /// </summary>
-        private GenericWfc Wfc;
+        private GenericWfc _Wfc;
 
         /// <summary>
         /// Creates a <see cref="TilingWfc{T}"/> instance to generate a tiled image.
         /// </summary>
-        /// <param name="tiles"></param>
-        /// <param name="neighbors"></param>
-        /// <param name="height"></param>
-        /// <param name="width"></param>
-        /// <param name="options"></param>
-        /// <param name="seed"></param>
+        /// <param name="tiles">The list of available <see cref="Tile{T}"/>s.</param>
+        /// <param name="neighbors">Possible neighboring tiles.</param>
+        /// <param name="height">The output canvas height.</param>
+        /// <param name="width">The output canvas width.</param>
+        /// <param name="options">Options for running the WFC algorithm.</param>
+        /// <param name="seed">The seed for the random number generator.</param>
         public TilingWfc(Tile<T>[] tiles,
-            List<Tuple<uint, uint, uint, uint>> neighbors,
+            TilingNeighbor[] neighbors,
             uint height,
             uint width,
             TilingWfcOptions options,
             int seed)
         {
-            Tiles = tiles;
+            if (neighbors == null) throw new ArgumentNullException(nameof(neighbors));
+
+            _Tiles = tiles ?? throw new ArgumentNullException(nameof(tiles));
+            _Options = options ?? throw new ArgumentNullException(nameof(options));
 
             var generated = GenerateOrientedTileIds(tiles);
-            IdToOrientedTile = generated.Item1;
-            OrientedTileIds = generated.Item2;
+            _IdToOrientedTile = generated.Item1;
+            _OrientedTileIds = generated.Item2;
 
-            Options = options;
-            Wfc = new GenericWfc(options.PeriodicOutput,
+            _Wfc = new GenericWfc(options.PeriodicOutput,
                 seed,
                 GetTileWeights(tiles),
-                GeneratePropagator(neighbors, tiles, IdToOrientedTile,
-                OrientedTileIds),
+                GeneratePropagator(neighbors, tiles, _IdToOrientedTile,
+                _OrientedTileIds),
                 height,
                 width);
         }
@@ -97,7 +99,7 @@ namespace FastWfcNet
         /// <returns>The resulting image or <c>null</c>.</returns>
         public Array2D<T> Run()
         {
-            var result = Wfc.Run();
+            var result = _Wfc.Run();
             if (result == null)
                 return null;
             return IdToTiling(result);
@@ -108,24 +110,24 @@ namespace FastWfcNet
         /// </summary>
         /// <param name="tiles">The tiles.</param>
         /// <returns>The generated mappings.</returns>
-        private static Tuple<List<Tuple<uint, uint>>, List<List<uint>>> GenerateOrientedTileIds(Tile<T>[] tiles)
+        private static Tuple<List<Tuple<uint, uint>>, uint[][]> GenerateOrientedTileIds(Tile<T>[] tiles)
         {
             var idToOrientedTile = new List<Tuple<uint, uint>>();
-            var orientedTileIds = new List<List<uint>>();
+            var orientedTileIds = new uint[tiles.Length][];
 
             uint id = 0;
             for (uint i = 0; i < tiles.Length; i++)
             {
-                orientedTileIds.Add(new List<uint>());
+                orientedTileIds[i] = new uint[tiles[(int)i].Data.Length];
                 for (uint j = 0; j < tiles[(int)i].Data.Length; j++)
                 {
                     idToOrientedTile.Add(new Tuple<uint, uint>(i, j));
-                    orientedTileIds[(int)i].Add(id);
+                    orientedTileIds[(int)i][j] = id;
                     id++;
                 }
             }
 
-            return new Tuple<List<Tuple<uint, uint>>, List<List<uint>>>(idToOrientedTile, orientedTileIds);
+            return new Tuple<List<Tuple<uint, uint>>, uint[][]>(idToOrientedTile, orientedTileIds);
         }
 
         /// <summary>
@@ -136,10 +138,10 @@ namespace FastWfcNet
         /// <param name="idToOrientedTile"></param>
         /// <param name="orientedTileIds"></param>
         /// <returns></returns>
-        private static PropagatorState<uint> GeneratePropagator(List<Tuple<uint, uint, uint, uint>> neighbors,
+        private static PropagatorState<uint> GeneratePropagator(TilingNeighbor[] neighbors,
             Tile<T>[] tiles,
             List<Tuple<uint, uint>> idToOrientedTile,
-            List<List<uint>> orientedTileIds)
+            uint[][] orientedTileIds)
         {
             var nbOrientedTiles = (uint)idToOrientedTile.Count;
             var densePropagator = new PropagatorState<bool>(nbOrientedTiles);
@@ -147,12 +149,14 @@ namespace FastWfcNet
                 for (uint d = 0; d < Direction.DirectionCount; d++)
                     densePropagator[i, d].AddRange(new bool[nbOrientedTiles]);
 
-            foreach (var neighbor in neighbors)
+            for (int neighborIndex = 0; neighborIndex < neighbors.Length; neighborIndex++)
             {
-                uint tile1 = neighbor.Item1;
-                uint orientation1 = neighbor.Item2;
-                uint tile2 = neighbor.Item3;
-                uint orientation2 = neighbor.Item4;
+                var neighbor = neighbors[neighborIndex];
+
+                uint tile1 = neighbor.Tile1;
+                uint orientation1 = neighbor.Orientation1;
+                uint tile2 = neighbor.Tile2;
+                uint orientation2 = neighbor.Orientation2;
 
                 var actionMap1 = Tile<T>.GenerateActionMap(tiles[(int)tile1].Symmetry);
                 var actionMap2 = Tile<T>.GenerateActionMap(tiles[(int)tile2].Symmetry);
@@ -214,18 +218,18 @@ namespace FastWfcNet
         /// <returns>Image result.</returns>
         private Array2D<T> IdToTiling(Array2D<uint> ids)
         {
-            var size = Tiles[0].Data[0].Height;
+            var size = _Tiles[0].Data[0].Height;
             var tiling = new Array2D<T>(size * ids.Height, size * ids.Width);
 
             for (uint i = 0; i < ids.Height; i++)
             {
                 for (uint j = 0; j < ids.Width; j++)
                 {
-                    var orientedTile = IdToOrientedTile[(int)ids[i, j]];
+                    var orientedTile = _IdToOrientedTile[(int)ids[i, j]];
 
                     for (uint y = 0; y < size; y++)
                         for (uint x = 0; x < size; x++)
-                            tiling[i * size + y, j * size + x] = Tiles[orientedTile.Item1].Data[(int)orientedTile.Item2][y, x];
+                            tiling[i * size + y, j * size + x] = _Tiles[orientedTile.Item1].Data[(int)orientedTile.Item2][y, x];
                 }
             }
 

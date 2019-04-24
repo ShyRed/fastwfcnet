@@ -29,6 +29,9 @@ namespace FastWfcNet
     /// </summary>
     public sealed class TilingWfcOptions
     {
+        /// <summary>
+        /// If set to <c>true</c> the output will be periodic.
+        /// </summary>
         public bool PeriodicOutput;
     }
 }

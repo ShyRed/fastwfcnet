@@ -27,8 +27,8 @@ namespace FastWfcDemoApp
         {
             base.OnLoad(e);
 
-            overlappingWfcPanel1.Logger = this;
-            tilingWfcPanel1.Logger = this;
+            overlappingWfcView1.Logger = this;
+            tilingWfcView1.Logger = this;
         }
 
         /// <summary>

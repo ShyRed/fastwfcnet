@@ -34,9 +34,9 @@
             this.buttonStart = new System.Windows.Forms.Button();
             this.tabControlModel = new System.Windows.Forms.TabControl();
             this.tabPageOverlappingModel = new System.Windows.Forms.TabPage();
-            this.overlappingWfcPanel1 = new FastWfcDemoApp.OverlappingWfcPanel();
             this.tabPageTilingModel = new System.Windows.Forms.TabPage();
-            this.tilingWfcPanel1 = new FastWfcDemoApp.TilingWfcPanel();
+            this.overlappingWfcView1 = new FastWfcDemoApp.Views.OverlappingWfcView();
+            this.tilingWfcView1 = new FastWfcDemoApp.Views.TilingWfcView();
             this.statusStripMain.SuspendLayout();
             this.tabControlModel.SuspendLayout();
             this.tabPageOverlappingModel.SuspendLayout();
@@ -70,6 +70,7 @@
             this.toolStripStatusLabelVisitGithub.Spring = true;
             this.toolStripStatusLabelVisitGithub.Text = "Visit this project on GitHub";
             this.toolStripStatusLabelVisitGithub.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolStripStatusLabelVisitGithub.Click += new System.EventHandler(this.toolStripStatusLabelVisitGithub_Click);
             // 
             // buttonStart
             // 
@@ -96,7 +97,7 @@
             // tabPageOverlappingModel
             // 
             this.tabPageOverlappingModel.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPageOverlappingModel.Controls.Add(this.overlappingWfcPanel1);
+            this.tabPageOverlappingModel.Controls.Add(this.overlappingWfcView1);
             this.tabPageOverlappingModel.Location = new System.Drawing.Point(4, 22);
             this.tabPageOverlappingModel.Name = "tabPageOverlappingModel";
             this.tabPageOverlappingModel.Padding = new System.Windows.Forms.Padding(3);
@@ -104,18 +105,10 @@
             this.tabPageOverlappingModel.TabIndex = 0;
             this.tabPageOverlappingModel.Text = "Overlapping Model";
             // 
-            // overlappingWfcPanel1
-            // 
-            this.overlappingWfcPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overlappingWfcPanel1.Location = new System.Drawing.Point(3, 3);
-            this.overlappingWfcPanel1.Name = "overlappingWfcPanel1";
-            this.overlappingWfcPanel1.Size = new System.Drawing.Size(705, 412);
-            this.overlappingWfcPanel1.TabIndex = 0;
-            // 
             // tabPageTilingModel
             // 
             this.tabPageTilingModel.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPageTilingModel.Controls.Add(this.tilingWfcPanel1);
+            this.tabPageTilingModel.Controls.Add(this.tilingWfcView1);
             this.tabPageTilingModel.Location = new System.Drawing.Point(4, 22);
             this.tabPageTilingModel.Name = "tabPageTilingModel";
             this.tabPageTilingModel.Padding = new System.Windows.Forms.Padding(3);
@@ -123,13 +116,21 @@
             this.tabPageTilingModel.TabIndex = 1;
             this.tabPageTilingModel.Text = "Tiling Model";
             // 
-            // tilingWfcPanel1
+            // overlappingWfcView1
             // 
-            this.tilingWfcPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tilingWfcPanel1.Location = new System.Drawing.Point(3, 3);
-            this.tilingWfcPanel1.Name = "tilingWfcPanel1";
-            this.tilingWfcPanel1.Size = new System.Drawing.Size(705, 412);
-            this.tilingWfcPanel1.TabIndex = 0;
+            this.overlappingWfcView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.overlappingWfcView1.Location = new System.Drawing.Point(3, 3);
+            this.overlappingWfcView1.Name = "overlappingWfcView1";
+            this.overlappingWfcView1.Size = new System.Drawing.Size(705, 412);
+            this.overlappingWfcView1.TabIndex = 0;
+            // 
+            // tilingWfcView1
+            // 
+            this.tilingWfcView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilingWfcView1.Location = new System.Drawing.Point(3, 3);
+            this.tilingWfcView1.Name = "tilingWfcView1";
+            this.tilingWfcView1.Size = new System.Drawing.Size(705, 412);
+            this.tilingWfcView1.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -161,8 +162,8 @@
         private System.Windows.Forms.TabControl tabControlModel;
         private System.Windows.Forms.TabPage tabPageOverlappingModel;
         private System.Windows.Forms.TabPage tabPageTilingModel;
-        private OverlappingWfcPanel overlappingWfcPanel1;
-        private TilingWfcPanel tilingWfcPanel1;
+        private FastWfcDemoApp.Views.OverlappingWfcView overlappingWfcView1;
+        private FastWfcDemoApp.Views.TilingWfcView tilingWfcView1;
     }
 }
 

@@ -1,8 +1,8 @@
 ﻿using FastWfcDemoApp.Controls;
 
-namespace FastWfcDemoApp
+namespace FastWfcDemoApp.Views
 {
-    partial class OverlappingWfcPanel
+    partial class OverlappingWfcView
     {
         /// <summary> 
         /// Required designer variable.
