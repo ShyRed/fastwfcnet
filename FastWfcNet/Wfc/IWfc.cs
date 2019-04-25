@@ -22,35 +22,43 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE. 
 */
-using System;
+using FastWfcNet.Utils;
 
-namespace FastWfcNet
+namespace FastWfcNet.Wfc
 {
     /// <summary>
-    /// Holds 2 neighboring tiles.
+    /// Interface for WFC implementations.
     /// </summary>
-    public sealed class TilingNeighbor
+    public interface IWfc<T>
     {
         /// <summary>
-        /// The first tile and its orientation.
+        /// The underlying WFC implementation. Can be used to access and modify
+        /// the wave and its patterns, for example.
         /// </summary>
-        public TileWithOrientation Tile1;
+        GenericWfc Wfc { get; }
 
         /// <summary>
-        /// The second tile and its orientation.
+        /// Runs the WFC algorithm and returns the resulting array on success
+        /// or <c>null</c> on failure.
         /// </summary>
-        public TileWithOrientation Tile2;
+        /// <returns>The result on success or <c>null</c> on failure.</returns>
+        Array2D<T> Run();
 
         /// <summary>
-        /// Creates a new <see cref="TilingNeighbor"/> instance with the specified tiles and
-        /// orientations.
+        /// Executes a single step of observing and propagating. The return
+        /// value indicates if the algorithm finished with success or failure
+        /// or needs additional calls to <c>RunStep</c> to progress..
         /// </summary>
-        /// <param name="tile1">The id and orientation of the first tile.</param>
-        /// <param name="tile2">The id and orientation of the second tile.</param>
-        public TilingNeighbor(TileWithOrientation tile1, TileWithOrientation tile2)
-        {
-            Tile1 = tile1 ?? throw new ArgumentNullException(nameof(tile1));
-            Tile2 = tile2 ?? throw new ArgumentNullException(nameof(tile2));
-        }
+        /// <returns>Result of executed observation and propagation step.</returns>
+        ObserveStatus RunStep();
+
+        /// <summary>
+        /// Returns the result of the algorithm. Is called by <see cref="Run"/> automatically
+        /// and usually needs to be called only when using the <see cref="RunStep"/> method
+        /// instead.
+        /// <para>Should not be called when the algorithm has failed.</para>
+        /// </summary>
+        /// <returns>The result of the algorithm.</returns>
+        Array2D<T> GetResult();
     }
 }

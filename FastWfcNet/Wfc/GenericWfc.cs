@@ -151,8 +151,8 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// Remove pattern from cell (i, j).
         /// </summary>
-        /// <param name="i">I coordinate.</param>
-        /// <param name="j">J coordinate.</param>
+        /// <param name="i">Y coordinate.</param>
+        /// <param name="j">X coordinate.</param>
         /// <param name="pattern">The pattern to remove.</param>
         public void RemoveWavePattern(uint i, uint j, uint pattern)
         {

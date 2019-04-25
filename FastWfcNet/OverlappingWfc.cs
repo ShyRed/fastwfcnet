@@ -32,28 +32,32 @@ namespace FastWfcNet
     /// <summary>
     /// Class generating a new image with the overlapping WFC algorithm.
     /// </summary>
-    public sealed class OverlappingWfc<T>
+    public sealed class OverlappingWfc<T> : IWfc<T>
     {
+        private readonly Array2D<T> _Input;
         /// <summary>
-        /// The input image. T is usually a color.
+        /// The input image. Type is usually a color.
         /// </summary>
-        private Array2D<T> _Input;
+        public Array2D<T> Input { get => _Input; }
 
+        private readonly OverlappingWfcOptions _Options;
         /// <summary>
         /// The options needed by the algorithm.
         /// </summary>
-        private OverlappingWfcOptions _Options;
+        public OverlappingWfcOptions Options { get => _Options; }
 
+        private readonly Array2D<T>[] _Patterns;
         /// <summary>
         /// The array of the different patterns extracted from the input.
         /// </summary>
-        private Array2D<T>[] _Patterns;
+        public Array2D<T>[] Patterns { get => _Patterns; }
 
+        private readonly GenericWfc _Wfc;
         /// <summary>
-        /// The underlying generic WFC algorithm.
+        /// The underlying WFC implementation. Can be used to access and modify
+        /// the wave and its pattern, for example.
         /// </summary>
-        private GenericWfc _Wfc;
-
+        public GenericWfc Wfc { get => _Wfc; }
 
         /// <summary>
         /// Constructor initializing the WFC.
@@ -85,6 +89,33 @@ namespace FastWfcNet
         {
             var result = _Wfc.Run();
             return result != null ? ToImage(result) : null;
+        }
+
+        /// <summary>
+        /// Executes a single step of observing and propagating. The return
+        /// value indicates, if the algorithm finished with success or failure
+        /// or needs additional calls to <c>RunStep</c> to progress..
+        /// </summary>
+        /// <returns>Result of executed observation and propagation step.</returns>
+        public ObserveStatus RunStep()
+        {
+            var status = _Wfc.Observe();
+            if (status == ObserveStatus.ToContinue)
+                _Wfc.Propagate();
+            return status;
+        }
+
+        /// <summary>
+        /// Returns the result of the algorithm. Is called by <see cref="Run"/> automatically
+        /// and usually needs to be called only when using the <see cref="RunStep"/> method
+        /// instead.
+        /// <para>Should not be called when the algorithm has failed.</para>
+        /// </summary>
+        /// <returns>The result of the algorithm.</returns>
+        public Array2D<T> GetResult()
+        {
+            var waveOutput =_Wfc.WaveToOutput();
+            return waveOutput != null ? ToImage(waveOutput) : null;
         }
 
         /// <summary>

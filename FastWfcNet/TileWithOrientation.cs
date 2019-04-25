@@ -22,35 +22,33 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE. 
 */
-using System;
-
 namespace FastWfcNet
 {
     /// <summary>
-    /// Holds 2 neighboring tiles.
+    /// Represents a tile with an orientation.
     /// </summary>
-    public sealed class TilingNeighbor
+    public sealed class TileWithOrientation
     {
         /// <summary>
-        /// The first tile and its orientation.
+        /// The tile.
         /// </summary>
-        public TileWithOrientation Tile1;
+        public uint Tile;
 
         /// <summary>
-        /// The second tile and its orientation.
+        /// The tile's orientation.
         /// </summary>
-        public TileWithOrientation Tile2;
+        public uint Orientation;
 
         /// <summary>
-        /// Creates a new <see cref="TilingNeighbor"/> instance with the specified tiles and
-        /// orientations.
+        /// Creates a new <see cref="TileWithOrientation"/> instance with the
+        /// specified tile and orientation.
         /// </summary>
-        /// <param name="tile1">The id and orientation of the first tile.</param>
-        /// <param name="tile2">The id and orientation of the second tile.</param>
-        public TilingNeighbor(TileWithOrientation tile1, TileWithOrientation tile2)
+        /// <param name="tile">The tile.</param>
+        /// <param name="orientation">The orientation.</param>
+        public TileWithOrientation(uint tile, uint orientation)
         {
-            Tile1 = tile1 ?? throw new ArgumentNullException(nameof(tile1));
-            Tile2 = tile2 ?? throw new ArgumentNullException(nameof(tile2));
+            Tile = tile;
+            Orientation = orientation;
         }
     }
 }

@@ -26,38 +26,46 @@ using FastWfcNet.Utils;
 using FastWfcNet.Wfc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FastWfcNet
 {
     /// <summary>
     /// Class generating a new image with the tiling WFC algorithm.
     /// </summary>
-    public sealed class TilingWfc<T>
+    public sealed class TilingWfc<T> : IWfc<T>
     {
+        private readonly Tile<T>[] _Tiles;
         /// <summary>
         /// The distinct tiles.
         /// </summary>
-        private readonly Tile<T>[] _Tiles;
+        public Tile<T>[] Tiles { get => _Tiles; }
 
+        private readonly List<TileWithOrientation> _IdToOrientedTile;
         /// <summary>
         /// Map Ids of oriented tiles to tile and orientation.
         /// </summary>
-        private readonly List<Tuple<uint, uint>> _IdToOrientedTile;
+        public IReadOnlyList<TileWithOrientation> IdToOrientedTile { get => _IdToOrientedTile;  }
 
+        private readonly uint[][] _OrientedTileIds;
         /// <summary>
         /// Map tile and orientation to oriented tile id.
+        /// <para>The first index is the tile and the second index is the orientation.</para>
         /// </summary>
-        private readonly uint[][] _OrientedTileIds;
+        public uint[][] OrientedTileIds { get => _OrientedTileIds; }
 
+        private readonly TilingWfcOptions _Options;
         /// <summary>
         /// Options needed to use the tiling WFC.
         /// </summary>
-        private readonly TilingWfcOptions _Options;
+        public TilingWfcOptions Options { get => _Options; }
 
-        /// <summary>
-        /// The underlying generic WFC algorithm.
-        /// </summary>
         private GenericWfc _Wfc;
+        /// <summary>
+        /// The underlying WFC implementation. Can be used to access and modify
+        /// the wave and its pattern, for example.
+        /// </summary>
+        public GenericWfc Wfc { get { return _Wfc; } }
 
         /// <summary>
         /// Creates a <see cref="TilingWfc{T}"/> instance to generate a tiled image.
@@ -69,13 +77,15 @@ namespace FastWfcNet
         /// <param name="options">Options for running the WFC algorithm.</param>
         /// <param name="seed">The seed for the random number generator.</param>
         public TilingWfc(Tile<T>[] tiles,
-            TilingNeighbor[] neighbors,
+            IEnumerable<TilingNeighbor> neighbors,
             uint height,
             uint width,
             TilingWfcOptions options,
             int seed)
         {
             if (neighbors == null) throw new ArgumentNullException(nameof(neighbors));
+
+            var neighborsArray = neighbors as TilingNeighbor[] ?? neighbors.ToArray();
 
             _Tiles = tiles ?? throw new ArgumentNullException(nameof(tiles));
             _Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -87,7 +97,7 @@ namespace FastWfcNet
             _Wfc = new GenericWfc(options.PeriodicOutput,
                 seed,
                 GetTileWeights(tiles),
-                GeneratePropagator(neighbors, tiles, _IdToOrientedTile,
+                GeneratePropagator(neighborsArray, tiles, _IdToOrientedTile,
                 _OrientedTileIds),
                 height,
                 width);
@@ -106,13 +116,40 @@ namespace FastWfcNet
         }
 
         /// <summary>
+        /// Executes a single step of observing and propagating. The return
+        /// value indicates, if the algorithm finished with success or failure
+        /// or needs additional calls to <c>RunStep</c> to progress..
+        /// </summary>
+        /// <returns>Result of executed observation and propagation step.</returns>
+        public ObserveStatus RunStep()
+        {
+            var status = _Wfc.Observe();
+            if (status == ObserveStatus.ToContinue)
+                _Wfc.Propagate();
+            return status;
+        }
+
+        /// <summary>
+        /// Returns the result of the algorithm. Is called by <see cref="Run"/> automatically
+        /// and usually needs to be called only when using the <see cref="RunStep"/> method
+        /// instead.
+        /// <para>Should not be called when the algorithm has failed.</para>
+        /// </summary>
+        /// <returns>The result of the algorithm.</returns>
+        public Array2D<T> GetResult()
+        {
+            var waveOutput = _Wfc.WaveToOutput();
+            return waveOutput != null ? IdToTiling(waveOutput) : null;
+        }
+
+        /// <summary>
         /// Generate mapping from id to oriented tiles and vice versa.
         /// </summary>
         /// <param name="tiles">The tiles.</param>
         /// <returns>The generated mappings.</returns>
-        private static Tuple<List<Tuple<uint, uint>>, uint[][]> GenerateOrientedTileIds(Tile<T>[] tiles)
+        private static Tuple<List<TileWithOrientation>, uint[][]> GenerateOrientedTileIds(Tile<T>[] tiles)
         {
-            var idToOrientedTile = new List<Tuple<uint, uint>>();
+            var idToOrientedTile = new List<TileWithOrientation>();
             var orientedTileIds = new uint[tiles.Length][];
 
             uint id = 0;
@@ -121,13 +158,13 @@ namespace FastWfcNet
                 orientedTileIds[i] = new uint[tiles[(int)i].Data.Length];
                 for (uint j = 0; j < tiles[(int)i].Data.Length; j++)
                 {
-                    idToOrientedTile.Add(new Tuple<uint, uint>(i, j));
+                    idToOrientedTile.Add(new TileWithOrientation(i, j));
                     orientedTileIds[(int)i][j] = id;
                     id++;
                 }
             }
 
-            return new Tuple<List<Tuple<uint, uint>>, uint[][]>(idToOrientedTile, orientedTileIds);
+            return new Tuple<List<TileWithOrientation>, uint[][]>(idToOrientedTile, orientedTileIds);
         }
 
         /// <summary>
@@ -140,7 +177,7 @@ namespace FastWfcNet
         /// <returns></returns>
         private static PropagatorState<uint> GeneratePropagator(TilingNeighbor[] neighbors,
             Tile<T>[] tiles,
-            List<Tuple<uint, uint>> idToOrientedTile,
+            List<TileWithOrientation> idToOrientedTile,
             uint[][] orientedTileIds)
         {
             var nbOrientedTiles = (uint)idToOrientedTile.Count;
@@ -153,10 +190,10 @@ namespace FastWfcNet
             {
                 var neighbor = neighbors[neighborIndex];
 
-                uint tile1 = neighbor.Tile1;
-                uint orientation1 = neighbor.Orientation1;
-                uint tile2 = neighbor.Tile2;
-                uint orientation2 = neighbor.Orientation2;
+                uint tile1 = neighbor.Tile1.Tile;
+                uint orientation1 = neighbor.Tile1.Orientation;
+                uint tile2 = neighbor.Tile2.Tile;
+                uint orientation2 = neighbor.Tile2.Orientation;
 
                 var actionMap1 = Tile<T>.GenerateActionMap(tiles[(int)tile1].Symmetry);
                 var actionMap2 = Tile<T>.GenerateActionMap(tiles[(int)tile2].Symmetry);
@@ -229,7 +266,7 @@ namespace FastWfcNet
 
                     for (uint y = 0; y < size; y++)
                         for (uint x = 0; x < size; x++)
-                            tiling[i * size + y, j * size + x] = _Tiles[orientedTile.Item1].Data[(int)orientedTile.Item2][y, x];
+                            tiling[i * size + y, j * size + x] = _Tiles[orientedTile.Tile].Data[(int)orientedTile.Orientation][y, x];
                 }
             }
 

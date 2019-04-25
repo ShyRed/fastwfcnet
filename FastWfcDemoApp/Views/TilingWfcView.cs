@@ -39,6 +39,9 @@ namespace FastWfcDemoApp.Views
         /// <returns></returns>
         public async Task RunWfc()
         {
+            if (_Tiles.Count == 0 || _Neighbors.Count == 0)
+                return;
+
             groupBoxSettings.Enabled = false;
 
             var stopwatch = new Stopwatch();
@@ -179,10 +182,8 @@ namespace FastWfcDemoApp.Views
                         tile2 = tile2.Substring(0, sep2);
 
                     _Neighbors.Add(new TilingNeighbor(
-                        filenameToId[tile1],
-                        orien1,
-                        filenameToId[tile2],
-                        orien2));
+                        new TileWithOrientation(filenameToId[tile1], orien1),
+                        new TileWithOrientation(filenameToId[tile2], orien2)));
                 }
 
                 Logger.LogSuccess($"Loaded {_Tiles.Count} tiles and {_Neighbors.Count} neighbors!");
