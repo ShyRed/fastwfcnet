@@ -5,13 +5,17 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company />
     <Authors>Pascal Richter</Authors>
-    <PackageLicenseUrl>https://github.com/ShyRed/fastwfcnet/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/shyred/fastwfcnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/shyred/fastwfcnet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/shyred/fastwfcnet.git</RepositoryUrl>
     <Description>WaveFunctionCollapse in C# .Net</Description>
     <Copyright>Copyright (c) 2019 Pascal Richter, Copyright (c) 2018 Mathieu Fehr and Nathanaël Courant</Copyright>
     <PackageTags>precodural-generation, wfc, wavefunctioncollapse, gamedev, algorithm, dotnet-standard, library</PackageTags>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
 </Project>

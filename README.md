@@ -1,3 +1,4 @@
+[![NuGet](https://img.shields.io/nuget/v/fastwfcnet.svg)](https://www.nuget.org/packages/FastWfcNet)
 [![Build status](https://ci.appveyor.com/api/projects/status/s99yd6ifgb4j8h11/branch/master?svg=true)](https://ci.appveyor.com/project/ShyRed/fastwfcnet/branch/master)
 [![Build Status](https://travis-ci.com/ShyRed/fastwfcnet.svg?branch=master)](https://travis-ci.com/ShyRed/fastwfcnet)
 
