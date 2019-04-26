@@ -1,21 +1,25 @@
-[![NuGet](https://img.shields.io/nuget/v/fastwfcnet.svg)](https://www.nuget.org/packages/FastWfcNet)
-[![Build status](https://ci.appveyor.com/api/projects/status/s99yd6ifgb4j8h11/branch/master?svg=true)](https://ci.appveyor.com/project/ShyRed/fastwfcnet/branch/master)
-[![Build Status](https://travis-ci.com/ShyRed/fastwfcnet.svg?branch=master)](https://travis-ci.com/ShyRed/fastwfcnet)
+| CI            | Download    |
+| ------------- |-------------|
+[![Build status](https://ci.appveyor.com/api/projects/status/s99yd6ifgb4j8h11/branch/master?svg=true)](https://ci.appveyor.com/project/ShyRed/fastwfcnet/branch/master) [![Build Status](https://travis-ci.com/ShyRed/fastwfcnet.svg?branch=master)](https://travis-ci.com/ShyRed/fastwfcnet) | [![NuGet](https://img.shields.io/nuget/v/fastwfcnet.svg)](https://www.nuget.org/packages/FastWfcNet)
 
-# FastWfcNet
-WaveFunctionCollapse in C# .Net
+FastWfcNet is a library that generates 2D output data that is locally similar to the 2D input data. This implementation is a port of the [fast-wcf](https://github.com/math-fehr/fast-wfc) library to C# .NET. Several modifications have been made to use C# / .NET features where possible.
 
-This is a port of [fast-wcf](https://github.com/math-fehr/fast-wfc) from C++ to C#:
+## Highlights
+- .NET Standard 2.0 library with no dependencies
+- Simple WinForms Demo Application (visit [mxgmn's repository](https://github.com/mxgmn/WaveFunctionCollapse/tree/master) for example images / tilemaps)
 
-- Contains .NET Standard 2.0 library
-- Contains simple WinForms Demo Application (see [original repository](https://github.com/mxgmn/WaveFunctionCollapse/tree/master) for example images)
-
-Please note that the API is still work in progress.
+## Features
+- 2D Overlapping model with improved floor pattern detection
+- 2D Tiling model with support for tiles that have no symmetry
+- Fully documented codebase
 
 ## The Demo Application
+The demo application allows you to try out the algorithm and get a feeling for what the different options do. The application's source code deals with handling bitmap images and as such can be used as a reference point when using the library to work with bitmap images.
+
 ![Screenshot of Demo Application](https://github.com/ShyRed/fastwfcnet/blob/master/screenshot.jpg)
 
 ## How To Use The Library
+The following example is taken from the demo application's source code and shows how a bitmap that is locally similar to the input bitmap can be generated.
 ```C#
 /// <summary>
 /// Runs WFC with overlapping model in a thread creating a <see cref="Bitmap"/> that is based
