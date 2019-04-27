@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace FastWfcNet
 {
     /// <summary>
-    /// A tile that can be placed on the board in <see cref="TilingWfc"/>.
+    /// A tile that can be placed on the board in <see cref="TilingWfc{T}"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public struct Tile<T>

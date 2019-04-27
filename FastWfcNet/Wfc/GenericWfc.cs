@@ -40,7 +40,7 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// The distribution of the patterns as given in input.
         /// </summary>
-        private double[] _PatternsFrequencies;
+        private readonly double[] _PatternsFrequencies;
 
         /// <summary>
         /// The wave, indicating which patterns can be put in which cell.
@@ -50,7 +50,7 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// The number of distinct patterns.
         /// </summary>
-        private uint _NbPatterns;
+        private readonly uint _NbPatterns;
 
         /// <summary>
         /// The propagator, used to propagate the information in the wave.

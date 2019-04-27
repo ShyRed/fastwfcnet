@@ -54,10 +54,10 @@ namespace FastWfcNet.Wfc
         /// <summary>
         /// State
         /// </summary>
-        private List<T>[] _State;
+        private readonly List<T>[] _State;
 
         /// <summary>
-        /// Creates a new <see cref="PropagatorState"/> that can hold the specified
+        /// Creates a new <see cref="PropagatorState{T}"/> that can hold the specified
         /// amount of patterns.
         /// </summary>
         /// <param name="patternCount">The number of patterns.</param>

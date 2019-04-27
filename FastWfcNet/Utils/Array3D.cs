@@ -56,19 +56,19 @@ namespace FastWfcNet.Utils
         /// <summary>
         /// Gets / Sets the element at the specified position.
         /// </summary>
-        /// <param name="i">i must be lower than height.</param>
-        /// <param name="j">j must be lower than width.</param>
-        /// <param name="k">k must be lower than depth.</param>
-        /// <returns></returns>
-        public T this[uint i, uint j, uint k]
+        /// <param name="y">i must be lower than height.</param>
+        /// <param name="x">j must be lower than width.</param>
+        /// <param name="z">k must be lower than depth.</param>
+        /// <returns>The element at the specified position.</returns>
+        public T this[uint y, uint x, uint z]
         {
             get
             {
-                return Data[i * Width * Depth + j * Depth + k];
+                return Data[y * Width * Depth + x * Depth + z];
             }
             set
             {
-                Data[i * Width * Depth + j * Depth + k] = value;
+                Data[y * Width * Depth + x * Depth + z] = value;
             }
         }
 
@@ -101,9 +101,14 @@ namespace FastWfcNet.Utils
                 Data[i] = value;
         }
 
+        /// <summary>
+        /// Checks if the specified <see cref="Array3D{T}"/> is equal to the current instance.
+        /// </summary>
+        /// <param name="other">The other array.</param>
+        /// <returns><c>true</c> if both instances are equal.</returns>
         public bool Equals(Array3D<T> other)
         {
-            if (object.ReferenceEquals(other, null) || Width != other.Width || Height != other.Height || Depth != other.Depth)
+            if (ReferenceEquals(other, null) || Width != other.Width || Height != other.Height || Depth != other.Depth)
                 return false;
 
             for (uint i = 0; i < Data.Length; i++)

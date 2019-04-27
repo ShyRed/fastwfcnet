@@ -168,12 +168,12 @@ namespace FastWfcNet
         }
 
         /// <summary>
-        /// Generates the <see cref="PropagatorState"/> which will be used in the WFC algorithm.
+        /// Generates the <see cref="PropagatorState{T}"/> which will be used in the WFC algorithm.
         /// </summary>
-        /// <param name="neighbors"></param>
-        /// <param name="tiles"></param>
-        /// <param name="idToOrientedTile"></param>
-        /// <param name="orientedTileIds"></param>
+        /// <param name="neighbors">The neighboring tiles.</param>
+        /// <param name="tiles">The tiles.</param>
+        /// <param name="idToOrientedTile">Mapping of Id to oriented tile.</param>
+        /// <param name="orientedTileIds">Mapping of oriented tile to Id.</param>
         /// <returns></returns>
         private static PropagatorState<uint> GeneratePropagator(TilingNeighbor[] neighbors,
             Tile<T>[] tiles,

@@ -51,18 +51,18 @@ namespace FastWfcNet.Utils
         /// <summary>
         /// Gets / Sets the value at the given position in the 2D array.
         /// </summary>
-        /// <param name="i">Must be lower than height.</param>
-        /// <param name="j">Must be lower than width.</param>
+        /// <param name="y">Must be lower than height.</param>
+        /// <param name="x">Must be lower than width.</param>
         /// <returns>The value at the specified position in the 2D array.</returns>
-        public T this[uint i, uint j]
+        public T this[uint y, uint x]
         {
             get
             {
-                return Data[j + i * Width];
+                return Data[x + y * Width];
             }
             set
             {
-                Data[j + i * Width] = value;
+                Data[x + y * Width] = value;
             }
         }
 
@@ -160,16 +160,33 @@ namespace FastWfcNet.Utils
             this.Data = source.Data;
         }
 
+        /// <summary>
+        /// Checks, if the specified <see cref="Array2D{T}"/> instances are equal.
+        /// </summary>
+        /// <param name="a">The first instance.</param>
+        /// <param name="b">The second instance.</param>
+        /// <returns><c>true</c> if both instances are equal.</returns>
         public static bool operator==(Array2D<T> a, Array2D<T> b)
         {
             return object.ReferenceEquals(a, b) || a.Equals(b);
         }
 
+        /// <summary>
+        /// Checks, if the specified <see cref="Array2D{T}"/> instances are not equal.
+        /// </summary>
+        /// <param name="a">The first instance.</param>
+        /// <param name="b">The second instance.</param>
+        /// <returns><c>true</c> if both instances are not equal.</returns>
         public static bool operator !=(Array2D<T> a, Array2D<T> b)
         {
             return !(object.ReferenceEquals(a, b) || a.Equals(b));
         }
 
+        /// <summary>
+        /// Checks if the specified <see cref="Array2D{T}"/> is equal to the current instance.
+        /// </summary>
+        /// <param name="other">The other array.</param>
+        /// <returns><c>true</c> if both instances are equal.</returns>
         public bool Equals(Array2D<T> other)
         {
             if (object.ReferenceEquals(other, null) || Width != other.Width || Height != other.Height)

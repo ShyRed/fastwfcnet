@@ -10,12 +10,22 @@
     <RepositoryUrl>https://github.com/shyred/fastwfcnet.git</RepositoryUrl>
     <Description>WaveFunctionCollapse in C# .Net</Description>
     <Copyright>Copyright (c) 2019 Pascal Richter, Copyright (c) 2018 Mathieu Fehr and Nathanaël Courant</Copyright>
-    <PackageTags>precodural-generation, wfc, wavefunctioncollapse, gamedev, algorithm, dotnet-standard, library</PackageTags>
+    <PackageTags>procedural-generation, wfc, wavefunctioncollapse, gamedev, algorithm, dotnet-standard, library</PackageTags>
     <RepositoryType>git</RepositoryType>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\FastWfcNet.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\FastWfcNet.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE" Pack="true" PackagePath=""/>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
