@@ -4,3 +4,6 @@ before_build:
 - cmd: nuget restore
 build:
   verbosity: minimal
+artifacts:
+- path: '**\*.nupkg'
+  name: NuGet Package
